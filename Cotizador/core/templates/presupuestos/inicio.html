@@ -1,0 +1,336 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        {% block head %}
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>{% block title %}Nueva Cotización{% endblock %}</title>
+            <link rel="stylesheet" href="{% static 'core/css/Index.css' %}">
+        {% endblock %} 
+    </head>
+    <body>
+        {% block header%}
+            <div class="titulo">
+            {% if cli %}
+            <h1>Ver Presupuesto {{np}}</h1>
+                {% else %}
+                    <h1>Nuevo Presupuesto</h1>
+                {% endif %}
+            {% endblock %}
+            </div>
+        {% block content %}
+ 
+            <div class="row">   
+                <div class="FormularioInicial">
+                    <form action="" method="POST" class="contenedor_formulario dark_bg" id="nueva_cotizacion_form">
+                        {% csrf_token %}
+                         <!-- Línea 1: Número de Presupuesto -->
+                        <div class="presupuesto-container">
+                            <label for="presupuesto">N° Presupuesto:</label>
+                            <input type="text" id="presupuesto" name="presupuesto" class="form-control" value="{{np}}" readonly>
+                        </div>
+
+                        <!-- Línea 2: Cantidad, Área, Ancho, Alto, Separación -->
+                        <div class="form-row datos_cantidad">
+                            <div class="form-group col-md-2">
+                            <label for="cantidad_repeticion">Cantidad/Repetición:</label>
+                            <input type="number" id="cantidad_repeticion" name="cantidad_repeticion" class="form-control" value="1">
+                            </div>
+                            <div class="form-group col-md-2">
+                            <label for="cantidad_area">Cantidad/Área:</label>
+                            <input type="number" id="cantidad_area" name="cantidad_area" class="form-control" value="1">
+                            </div>
+                            <div class="form-group col-md-2">
+                            <label for="ancho">Ancho (impresión en cm):</label>
+                            <input type="number" id="ancho" name="ancho" class="form-control" value="1">
+                            </div>
+                            <div class="form-group col-md-2">
+                            <label for="alto">Alto (impresión en cm):</label>
+                            <input type="number" id="alto" name="alto" class="form-control" value="1">
+                            </div>
+                            <div class="form-group col-md-2">
+                            <label for="separacion">Separación:</label>
+                            <input type="number" id="separacion" name="separacion" value="0" class="form-control">
+                            </div>
+                        </div>
+
+                        <!-- Línea 1: Select de categoría -->
+                        <div class="form-group">
+                            <label for="categoria">Categoría:</label>
+                            <select id="categoria" name="categoria" class="form-control">
+                                <option value="0">Selecciona una categoría</option>
+                                {% for c in Cat %}
+                                    {% if c.nombre != 'Misceláneos' %}
+                                        <option value="{{c.id}}">{{c.nombre}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Separador -->
+                        <hr>
+
+                        <!-- Línea 4: Espacio para el gráfico -->
+                        <!-- Aquí aparecerá el gráfico generado -->
+                        <div id="grafico_contenedor" class="form-group hidden">
+                            <h4 id="tituloGrafico">Representación gráfica</h4>
+                            <!-- Contenedor para gráfico y botones alineados -->
+                            <div class="grafico_botones_contenedor">
+                                <img alt="Gráfico de material" id="img_hoja" class="grafico-img">
+                                <!-- Botones alineados a un costado -->
+                                <div class="botones-grafico">
+                                    <button id="btnDescargarGrafico" class=" btn btn-grafico btn-dark"><i class="fa-solid fa-download" type="button"type="button"></i></button>
+                                    <button id="btnBorrarGrafico" class="btn btn-grafico btn-dark"><i class="fa-solid fa-trash-can" type="button"></i></button>
+                                    <button id="btn-regenerar" class="btn btn-grafico btn-dark" data-algoritmo="MaxRects" data-toggle="tooltip" title="">
+                                        <i class="fa-solid fa-scissors"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Resultados -->
+                            <p id="resultado">
+                                Entran <span id="cant_resultado"></span> elementos por hoja.
+                                Necesitarás <span id="cant_hojas"></span> <button type="button" class="btn btn-dark" onclick="enviarCantidadHojas()"><i class="fa-solid fa-hand-pointer"></i></button> hojas/pliegos para completar el pedido. 
+                                Se utilizará <span id="area_ocupada"></span> <button type="button" class="btn btn-dark" onclick="enviarAreaOcupada()"><i class="fa-solid fa-hand-pointer"></i></button> m² de papel/vinilo/lona. 
+                            </p>
+                        </div>
+                        
+                        <!-- Separador -->
+                        <hr>
+
+                        <!-- Línea 5: Select de productos -->
+                        <div class="form-group">
+                            <label for="producto">Producto:</label>
+                            <select id="producto" name="producto" class="form-control">
+                            <!-- Opciones del select -->
+                            </select>
+                        </div>
+
+                        <div class="form-group info_adic">
+                            <label for="info_adic" style="font-weight: bold;" data-bs-toggle="tooltip" data-bs-placement="top" title="En este campo puedes indicar detalles adicionales sobre el producto como podría ser algún pedido especial que haya hecho el cliente. También puede usarse para que se refleje en el presupuesto exactamente lo que el cliente pide.">Información adicional</label>
+                            <input type="textarea" id="info_adic" name="info_adic" class="form-control" placeholder="Información adicional">
+                        </div>
+
+                        <!-- Línea 6: Checkbox de empaquetado, Tiempo de producción, Descuento -->
+                        <div class="form-row agregados">
+                            <div class="form-group col-md-4">
+                            <label for="empaquetado">Empaquetado:</label>
+                            <input type="checkbox" id="empaquetado" name="empaquetado" checked>
+                            </div>
+                            <div class="form-group col-md-4">
+                            <label for="t_produccion">Tiempo de producción [hs]:</label>
+                            <input type="text" id="t_produccion" name="t_produccion" value="1" class="form-control">
+                            </div>
+                            <div class="form-group col-md-4">
+                            <label for="descuento">Descuento [%]:</label>
+                            <input type="number" id="descuento" name="descuento" value="0" class="form-control">
+                            </div>
+                        </div>
+
+                        <!-- Línea 7: Botones de Limpiar formulario y Calcular -->
+                        <div class="form-group">
+                            <a href="/presupuestos/inicio" styles="text-decoration: none;"><button type="button" class="btn btn_agregar btn-dark btn-fuente" data-bs-toggle="tooltip" data-bs-placement="top" title="Este botón refresca la página devolviendo el formulario a su estado inicial.">
+                                <i class="fa-solid fa-eraser"></i> 
+                                Limpiar formulario
+                            </button></a>
+                            <button type="button" class="btn btn_agregar btn-dark btn-fuente" onclick="previoModal()" data-bs-toggle="tooltip" data-bs-placement="top" title="Este botón realiza el cálculo del precio con la información cargada y muestra una ventana con el resultado donde podrás agregar el producto al presupuesto o descartarlo.">
+                                <i class="fa-solid fa-calculator"></i> 
+                                Calcular $ 
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="container">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <table id="NuevoPresupuesto" class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="centered">Código</th>
+                                    <th class="centered">Servicio</th>
+                                    <th class="centered">Descripción</th>
+                                    <th class="centered">Empaquetado</th>
+                                    <th class="centered">Cantidad</th>
+                                    <th class="centered">Precio</th>
+                                    <th class="centered">Descuento [%]</th>
+                                    <th class="centered">Descuento [$]</th>
+                                    <th class="centered">Total</th>
+                                    <th class="centered">Editar/Borrar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody_Presupuesto">
+                                {% for c in Prods %}
+                                        <tr>
+                                            <td>{{c.codigo}}</td>
+                                            <td>{{c.nombre}}</td>
+                                            <td>{{c.info_adic}}</td>
+                                            <td>
+                                                {% if c.empaquetado %}
+                                                    Si
+                                                {% else %}
+                                                    No
+                                                {% endif %}
+                                            </td>
+                                            <td>{{c.cantidad}}</td>
+                                            <td>$ {{c.precio}}</td>
+                                            <td>{{c.desc_porcentaje}}%</td>
+                                            <td>$ {{c.desc_plata}}</td>
+                                            <td>$ {{c.resultado}}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-dark btn-xs" data-bs-toggle="modal" data-bs-target="#editarProductoPresupuestoModal" data-bs-whatever="{{c.codigo}} | {{c.nombre}} | {{c.info_adic}} | {{c.cantidad}} | {{c.cant_area}} | {{c.desc_porcentaje}} | {{c.empaquetado}} | {{c.t_produccion}} | {{c.precio}}" data-bs-toggle="tooltip" data-bs-placement="top" title="Permite editar este producto."><i class="fa-solid fa-pencil"></i></button>
+                                                <a href="/presupuestos/deleteCalc_Presupuesto/{{c.codigo}}" class="btn btn-dark btn-xs btnEliminacion" data-bs-toggle="tooltip" data-bs-placement="top" title="Borra este producto de la cotización actual."><i class="fa-solid fa-trash-can"></i></a>
+                                            </td>
+                                        </tr>
+                                        
+                                {% endfor %} 
+
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="8" style="text-align:right; font-weight: bold;">Total bruto:</td>
+                                    <td>$ {{total}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8" style="text-align:right; font-weight: bold;">Total descuento:</td>
+                                    <td>$ {{descuento}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8" style="text-align:right; font-weight: bold;">Total Neto:</td>
+                                    <td>$ {{totalNeto}}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="buttons">
+                        {% if cli %}
+                            <a href="/presupuestos" class="btn btn-outline-dark btn-dark btn-fuente" data-bs-toggle="tooltip" data-bs-placement="top" title="Volver a la lista de presupuestos."><i class="fa-regular fa-circle-left"></i> Volver atras </a>
+                        {% else %}
+                            <a href="/presupuestos/borrarTodo" class="btn btn-outline-dark btn-dark btn-fuente" data-bs-toggle="tooltip" data-bs-placement="top" title="Borra TODOS los productos de la cotización actual."><i class="fa-solid fa-trash-can"></i> Borrar todo </a>
+                        {% endif %}
+                        <button class="btn btn-outline-dark btn-dark" data-bs-toggle="modal" data-bs-target="#agregarClienteModal" data-bs-whatever="presupuesto"><i class="fa-solid fa-sd-card"></i> Guardar presupuesto </button>
+                        <!-- <a href="/presupuestos/guardarPresupuesto" class="btn btn-outline-dark btn-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Guarda el presupuesto para poder descargarlo o editarlo después."><i class="fa-solid fa-sd-card"></i> Guardar presupuesto </a> -->
+                        <button class="btn btn-outline-dark btn-dark" data-bs-toggle="modal" data-bs-target="#agregarClienteModal" data-bs-whatever="pedido"><i class="fa-solid fa-check"></i> Confirmar pedido</button>
+                        <!-- <a href="/pedidos/completarPedido" class="btn btn-outline-dark btn-dark" data-bs-toggle="tooltip" data-bs-placement="top" title="Este botón guarda el presupuesto y muestra un formulario para completar el pedido en el caso de que el cliente ya esté seguro de lo que quiere."><i class="fa-solid fa-check"></i> Confirmar pedido </a> -->
+                    </div>
+                </div>
+            </div>
+            <!-- Modal resultado del cálculo -->
+            <div class="modal fade" id="resultadoPrevioModal" tabindex="-1" aria-labelledby="resultadoPrevioModalLabel" data-bs-backdrop="static" aria-hidden="true">   
+                <form action="" method="POST" id="">
+                    {% csrf_token %}
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title-prod fs-5" id="resultadoPrevioModalLabel">Cálculo rápido</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Producto: <span id="prod_prev" style="font-weight: bold"> </span></p>
+                                <p>Cantidad: <span id="cant_prev" style="font-weight: bold"> </span></p>
+                                <p>Cantidad/Área: <span id="cant_area_prev" style="font-weight: bold"> </span></p>
+                                <p>Precio: $ <span id="precio_prev" style="font-weight: bold"> </span></p>
+                                <p>Descuento: <span id="descuento_prev" style="font-weight: bold"></span></p>
+                                <p>Empaquetado: <span id="empaquetado_prev" style="font-weight: bold"> </span></p>
+                                <p>Tiempo de producción [hs]: <span id="t_produccion_prev" style="font-weight: bold"> </span></p>
+                                <p>Detalle: <span id="detalle_prev" style="font-weight: bold"> </span></p>
+                            </div>
+                            <div class="modal-footer">
+                                <a href="/presupuestos/agregarDescartarProducto/add" style="text-decoration: none;"><button type="button" id="btn_calcular_previo" class="btn btn-dark btn-fuente" onclick=""> Agregar </button></a>
+                                <a href="/presupuestos/agregarDescartarProducto/del" style="text-decoration: none;"><button type="button" class="btn btn-dark btn-fuente" data-bs-dismiss="modal" onclick=""> Descartar </button"></a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal editar producto del presupuesto -->
+            <div class="modal fade" id="editarProductoPresupuestoModal" tabindex="-1" aria-labelledby="editarProductoPresupuestoModalLabel" data-bs-backdrop="static" aria-hidden="true">   
+                <form action="/presupuestos/editarProductoCotizado" method="POST" id="">
+                    {% csrf_token %}
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title-prod fs-5" id="editarProductoPresupuestoModalLabel">Editar cotización</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="text" id="cod_edit" name="cod_edit" readonly>
+
+                                <label for="prod_edit" style="font-weight: bold">Producto:</label>
+                                <input type="text" id="prod_edit" name="prod_edit" readonly>
+
+                                <label for="cant_edit" style="font-weight: bold">Cantidad:</label>
+                                <input type="text" id="cant_edit" name="cant_edit">
+
+                                <label for="cant_area_edit" style="font-weight: bold">Cantidad pliegos/Área efectiva:</label>
+                                <input type="text" id="cant_area_edit" name="cant_area_edit">
+                                
+                                <label for="precio_edit" style="font-weight: bold">Precio:</label>
+                                <input type="text" id="precio_edit" name="precio_edit">
+                                
+                                <label for="desc_edit" style="font-weight: bold">Descuento:</label>
+                                <input type="text" id="desc_edit" name="desc_edit">
+                                
+                                <label for="detalle_edit" style="font-weight: bold">Información adicional:</label>
+                                <input type="text" id="detalle_edit" name="detalle_edit">
+
+                                <label for="empaq_edit" style="font-weight: bold">Empaquetado:</label>
+                                <input type="checkbox" id="empaq_edit" name="empaq_edit" class="form-check-input" size="25">
+
+                                <label for="t_prod_edit" style="font-weight: bold">Tiempo de producción [hs]:</label>
+                                <input type="text" id="t_prod_edit" name="t_prod_edit">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" id="btn_calcular_edit" class="btn btn-dark btn-fuente" onclick=""> Guardar cambios </button>
+                                <button type="button" class="btn btn-dark btn-fuente" data-bs-dismiss="modal" onclick="">Volver atras</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Modal cliente del presupuesto -->
+            <div class="modal fade" id="agregarClienteModal" tabindex="-1" aria-labelledby="agregarClienteModalLabel" data-bs-backdrop="static" aria-hidden="true">   
+                <form action="/presupuestos/definirCliente/" method="POST" id="">
+                    {% csrf_token %}
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title-prod fs-5" id="agregarClienteModalLabel">¿Para quién es este presupuesto?</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <input type="hidden" id="actionType" name="actionType">
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="clienteSelect" class="form-label">Seleccionar cliente</label>
+                                    <select class="form-select" id="clienteSelect" name="cliente">
+                                        <!-- Opciones se cargarán por AJAX -->
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="nuevoCliente" class="form-label">Agregar nuevo cliente</label>
+                                    <input type="text" class="form-control" id="nuevoCliente" name="nuevoCliente" placeholder="Nombre del nuevo cliente">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" id="" class="btn btn-dark btn-fuente" onclick=""> Guardar y continuar </button>
+                                <button type="button" class="btn btn-dark btn-fuente" data-bs-dismiss="modal" onclick=""> Cancelar </button">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- Custom Js -->
+            <script type="application/json" id="editandoPresup">
+                {{ editando_presup|yesno:"true,false" }}
+            </script>
+            <script src="{% static 'core/js/Index.js' %}"></script>
+        
+        {% endblock %}
+        {% block footer %}
+        
+        {% endblock %}
+    </body>
+
+</html>

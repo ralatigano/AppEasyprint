@@ -1,0 +1,13 @@
+
+.container.mt-5 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 800px; 
+    margin: 0 auto; 
+    padding: 20px;  
+    background-color: transparent;
+    z-index: 50;
+}

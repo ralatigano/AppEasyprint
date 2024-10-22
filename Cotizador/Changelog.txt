@@ -1,0 +1,54 @@
+****************** 21/10/2024 ******************
+Versión 2.5.0
+    -Inicio
+        *Se modifica el formulario inicial para que se parezca mas al cotizador que teníamos en excel. 
+            _Ahora el cliente se agrega en última instancia, al momento de guardar el presupuesto o confirmar el pedido y no al momento de hacer los cálculos de cada producto.
+            _Se incluye un modal que permite la definición del cliente, ya sea eligiendo uno de la base de datos o escribiendo el nombre de un nuevo cliente.
+            _Ahora el gráfico y los cálculos de la cantidad de hojas/area ocupada se realizan y presentan al elegir una categoría.
+            _Se agregan botones que permiten copiar/enviar los resultados de los cálculos al input adecuado para facilitar el flujo durante la cotización de un producto.
+            En el caso del botón que permite enviar el dato de la cantidad de hojas al input de cant_area también sirve para activar el filtrado de productos según el rango
+            de hojas dependiendo que los productos del select tengan el formato de nombre correcto.
+            _Se modulariza la lógica que realizaba los cálculos y el gráfico a la hora de realizar cotizaciones.
+        *Ahora se puede editar todos los aspectos de un producto que está siendo cotizado a diferencia de antes que no se podía colocar precios arbitrarios.
+    -Productos
+        *Se incorpora un CRUD completo para trabajar con instancias del modelo Categorías.
+
+****************** 20/8/2024 ******************
+Versión 2.0.3
+Commit 93L4U1Qg
+    -Inicio
+        *Se agregan algunos tooltips para facilitar el uso del formulario incial.
+    -Presupuestos
+        *Se corrigen errores que impedían la formación correcta de un presupuesto al descargarlo.
+    -Pedidos
+        *Se incorpora una funcionalidad en la tabla de pedidos que permite ver los detalles de cada producto cargados oportunamente en información adicional.
+****************** 10/8/2024 ******************
+Versión 2.0.2
+Commit cNs8%jJ$
+    -General
+        *Se describe brevemente que hace cada función en jS o en en las vistas del backend.
+    -Usuarios
+        *Se agrega una vista para ver los usuarios registrados con las funcionalidades de un CRUD completas.
+    -Login
+        *Se agrega el logo de Easyprint para causar un mejor efecto estético.
+    -Ver/Editar perfil
+        *Se agrega una línea para que se renderice apropiadamente la información a pesar de estar incompleta.
+
+****************** 8/8/2024 ******************
+Versión 2.0.1
+Commit ^bCrsG3$
+    -General
+        *Se ajusta el ancho del elemento Contenido Principal de modo que se adapte mejor a distintos tamaños de pantalla.
+        *Se limpia el código elimando secciones comentadas.
+        *Se corrige el resaltado de la pestaña actual.
+        *Se utiliza un unico estilo para todas las tablas de la aplicación. Se agrega esquinas redondeadas para mejorar la estética.
+    -inicio y ver presupuestos
+        *Se mejora el contraste del formulario que sirve para cotizar agregando dinámicamente (de acuerdo al tema seleccionado) un color de fondo con transparencia.
+
+****************** #/#/2024 ******************
+Versión 2.5.0
+    -Productos
+        *Se agrega un CRUD para crear categorías accesible desde la vista de productos.
+        *Se cambia la posición de los botones de agregar productos a la parte superior de la vista para mejorar la accesibilidad.
+        *Se incorpora un botón de "Categorías" en la vista de producto para acceder a las funcionalidades del CRUD de este modelo.
+        *Se modifica el modelo de Categorías para que las instancias se identifiquen por id en lugar de por nombre.

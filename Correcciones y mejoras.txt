@@ -1,0 +1,48 @@
+********* Correcciones *********
+
+
+********* Mejoras *********
+6) Que la tabla de presupuestos tenga un botón para convertir el presupuesto en pedido.
+9) Vamos a cambiar la vista principal del cotizador de modo de mejorar la experiencia de usuario.
+    -La idea es que el usuario antes que nada elija una categoría y que eso modifique la interfaz para facilitar el cálculo.
+    -El cliente se va a solicitar en última instancia para guardar un presupuesto o generar un pedido, pero no durante el agregado de productos. (probablemente haya que modificar el modelo de producto)
+    -Los productos agregados van a poder editarse en su totalidad.
+    -Hay que revisar la inclusión del dato de cantidad/repetición de modo que sea funcional y no genere confusiones.
+
+
+#)Completar el CRUD de Categorias. Agregar el botón correspondiente en la vista de productos. (hecho)
+#)Modificar la plantilla de producto para que use un solo modal y una sola vista que maneje la edición y la creación de productos. Considerar
+que se debe agregar una línea para crear categorías desde la edición/creación de productos. (Hecho, falta probar)
+#)Revisar las vistas relacionadas a productos y categorías de modo que contemplen la existencia del id de categorías como primary_key. Ojo con las consultas ajax y demas.
+#)Trabajar la lógica de js que se ocupará de levantar los datos parciales del formulario y realizar las acciones que queremos (calcular cantidad/area, filtrar productos si es necesario y armar/presentar
+el gráfico). Definamos el filtrado de modo que solo los productos que tienen un nombre con determinado formato sean filtrados.
+    -El js deberá "explorar" la categoría elegida para obtener las dimensiones disponibles para el cálculo. (Hecho)
+    -En esa misma exploración puede obtener una lista de los productos. (Hecho)
+    -Si los productos tienen un nombre con formato específico deberían filtrarse una vez realizado el cálculo. (Hecho)
+    -se debe crear el gráfico y luego pasar la url para poder incrustarlo en el formulario. (Hecho, faltaría trabajar detalles como que el gráfico no exceda el ancho del recuadro del formulario)
+Tengo un nuevo problema y es que debería encontrar la forma ótima de diferenciar los casos en los que me interesa saber el área que ocupa la impresión y los casos en los que quiero
+saber cuantas hojas necesito para completar el pedido.
+    *Una alternativa sería agregar un par de "span" que muestren ambos resultados con un par de botones que permita incorporar ese dato al input correspondiente de cant_area para poder realizar el cálculo.
+#) Hay que trabajar en la eliminación de la imagen. (hecho)
+#) Podría contruibuir al orden que al generarse el gráfico aparezca un título que diga "Representación gráfica" y debería existir un segundo divisor debajo del mismo para separar. (Hecho)
+Incluso podría ser bueno que se agregué información al gráfico para que al descargarlo tenga info necesaria para su total comprensión. (Hecho)
+#) ¿Incluir un boton que despliegue el gráfico?
+#) Seguir revisando el proceso de calcular/agregar productos para construir un presupuesto. (Revisado)
+#) Revisar la edición de los productos cotizados. (Revisado. Explicar que pasa cuando se edita el precio del producto)
+#) Revisar que se contruya correctamente la tabla de presupuesto en relación a la inclusión de varios productos. (Revisado. OK)
+#) Probar el resto de las funcionalidades de la vista principal:
+    -Borrar un producto. (Hecho. OK)
+    -Borrar todos los productos. (Hecho. OK)
+    -Guardar presupuesto. Recordar que hay que incorporar una forma de agregar el cliente en el momento en que se guarda el presupuesto. (Hecho)
+    -Generar pedido. Revisar como se adapta esta funcionalidad en torno a la especificación del cliente que hasta este punto no ha sido definido. (Hecho)
+
+#) Seguir trabajando en la funcionalidad de confirmación de pedido. Concretamente es necesario enfocarse en que sucede cuando se confirma el pedido directamente desde la nueva
+cotización (como se usa el valor que se incluye de cliente en la vista de completar pedido) y que pasa cuando se confirma un pedido desde la edición de presupuesto. (Hecho)
+
+Algunos problemillas que voy encontrando:
+#) Es necesario diferenciar algunos servicios que se cobran como un todo, como encolado, corte, envío y diferenciarlo de otros servicios que se cobran por m2 como la confección de estructura o la colocación de vinilo. (Hecho)
+#) Hay que ver que cantidad es la que se coloca en el presupuesto (por el momento la descarga de presupuesto no está funcionando al menos en local).
+#) Hay que trabajar en la diferenciación de casos en donde se intenta realizar una lona o vinilo que excede las dimensiones (elementos empaquetados = 0) y complementar con una función
+que divida el diseño en dos o mas partes a lo largo del material. (Hecho)
+#) Agregar un botón de volver atras a la vista de restablecer contraseña.
+#) Revisar porque no funciona agregar producto al presupuesto, evidentemente el problema está relacionado con la obtención de la categoría del formulario, hay unos cruces entre recibir el nombre y requerir el id o lo recíproco.
